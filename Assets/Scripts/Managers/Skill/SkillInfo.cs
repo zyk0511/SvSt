@@ -38,7 +38,10 @@ namespace SurvialShoooter.Skill
         public string strTargetParticle;
 		//是否针对多个目标
 		public int intIsForMultiple;
-
+		//出手距离
+		public int distance;
+		//作用范围
+		public int range;
 
         [System.NonSerialized]
         //技能吟唱时的粒子对象

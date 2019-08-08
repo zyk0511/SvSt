@@ -5,13 +5,18 @@ using UnityEngine;
 public class ParticleTrailRotation : MonoBehaviour {
 
 	// Update is called once per frame
-	Vector3 rotationSpeed;
-	bool local = true;
+	public Vector3 rotationSpeed;
+	public bool local = true;
+	public bool isParticlePlaying = false;
 
 	void Update(){
-		if (local)
-			transform.Rotate(rotationSpeed * Time.deltaTime);
-		else
-			transform.Rotate(rotationSpeed * Time.deltaTime, Space.World);
+
+		if(isParticlePlaying)
+		{
+			if (local)
+				transform.Rotate(rotationSpeed * Time.deltaTime);
+			else
+				transform.Rotate(rotationSpeed * Time.deltaTime, Space.World);
+		}
 	}
 }

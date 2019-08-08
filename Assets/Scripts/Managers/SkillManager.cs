@@ -43,6 +43,14 @@ namespace SurvialShoooter.Manager
 			if (skillEntity != null) {
 				skillEntity.Update ();
 			}
+
+//			if (!SkillManager.GetInstance ().IsParticlePlaying (this.skillInfo.singingParticle) &&
+//				!SkillManager.GetInstance ().IsParticlePlaying (this.skillInfo.releasingParticle)) {
+//
+//				SkillManager.GetInstance ().SetParticleLightEnabled (this.skillInfo.singingParticle, false);
+//				SkillManager.GetInstance ().SetParticleLightEnabled (this.skillInfo.releasingParticle, false);
+//			}
+
 		}
 
         //根据配置文件中的设定，装配玩家技能信息
@@ -100,8 +108,10 @@ namespace SurvialShoooter.Manager
 
                 if (skillStateMachine != null)
                 {
-                    skillStateMachine.Sing();
-                    skillStateMachine.Release();
+					skillStateMachine.SetSender (cBaseEvent.GetSender());
+
+					skillStateMachine.Sing();
+                    //skillStateMachine.Release();
                     //skillStateMachine.HitTarget();
                     //skillStateMachine.Complete();
                 }
@@ -155,7 +165,7 @@ namespace SurvialShoooter.Manager
                 
 				SetParticleLightEnabled(particleGO, false);
 
-				particleGO.playOnAwake = false;
+				//particleGO.playOnAwake = false;
                 particleGO.Stop();
                 
                 //Debug.Log(particleGO);
@@ -194,6 +204,16 @@ namespace SurvialShoooter.Manager
 				//SetParticleLightEnabled (particle, false);
             }
         }
+
+		public void StopParticle (ParticleSystem particle)
+		{
+			if (particle != null)
+			{
+				particle.Stop();
+				//关闭粒子的光源
+				SetParticleLightEnabled (particle, false);
+			}
+		}
 
         //将技能配置文件（PlayerSkillsInfo.json）中的JSON格式字符串转化为SkillInfo实例
         public List<SkillInfo> FromJsonToObject()
@@ -307,6 +327,66 @@ namespace SurvialShoooter.Manager
 					enemyGO.GetComponent<EnemyHealth> ().TakeDamage (skillIntHP);
 				}
 			}
+		}
+
+		//获取作用范围内指定数量的敌人，并按照与目标的直线距离升序排序
+		public List<GameObject> GetEnemyListInRangeByAmount(Vector3 startPosition, int amount, int range)
+		{
+			List<GameObject> enemyGOList = GameObject.Find ("EnemyManager").transform.GetComponent<ObjectPooler> ().GetPooledObjectsList ();
+
+			List<KeyValuePair<int,float>> enemyDistanceKYList = new List<KeyValuePair<int,float>> ();
+
+			Dictionary<int,GameObject> enemyGOInCircleDic = new Dictionary<int,GameObject> ();
+
+			List<GameObject> enemyGOInRangeByAmountList = new List<GameObject>();
+
+			foreach(GameObject enemyGO in enemyGOList)
+			{
+				float distanceSquare = Mathf.Pow (enemyGO.transform.position.x - startPosition.x, 2) + Mathf.Pow (enemyGO.transform.position.z - startPosition.z, 2);
+
+				if(enemyGO.activeInHierarchy && distanceSquare <= Mathf.Pow(range,2))
+				{
+					int key = enemyGO.GetInstanceID ();
+					KeyValuePair<int,float> enemyDistanceKY = new KeyValuePair<int,float> (key,distanceSquare);
+					enemyDistanceKYList.Add (enemyDistanceKY);
+
+					enemyGOInCircleDic.Add (key, enemyGO);
+				}
+			}
+
+			//按值升序排列
+			enemyDistanceKYList.Sort(delegate(KeyValuePair<int,float> s1,KeyValuePair<int,float> s2){
+				return s1.Value.CompareTo(s2.Value);
+			});
+
+			//删除排序后超出指定数量的敌人
+			enemyDistanceKYList.RemoveRange (amount, enemyDistanceKYList.Count - amount);
+
+			foreach(KeyValuePair<int,float> enemyDistanceKY in enemyDistanceKYList)
+			{
+				GameObject enemyInCircle;
+				enemyGOInCircleDic.TryGetValue (enemyDistanceKY.Key, out enemyInCircle);
+
+				if (enemyInCircle != null) {
+					enemyGOInRangeByAmountList.Add (enemyInCircle);
+				}
+			}
+
+			return enemyGOInRangeByAmountList;
+		}
+
+		//初始化并实例化闪电链组件
+		public GameObject InstantiateChainLightning(Transform startTrans, Transform targetTrans)
+		{
+			GameObject chainLightning = Resources.Load ("Prefabs/ChainLightning") as GameObject;
+
+			UVChainLightning uVChainLightning = chainLightning.GetComponent<UVChainLightning> ();
+			uVChainLightning.start = startTrans;
+			uVChainLightning.target = targetTrans;
+
+			chainLightning = Instantiate (chainLightning);
+
+			return chainLightning;
 		}
     }
 }

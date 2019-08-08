@@ -14,36 +14,32 @@ namespace SurvialShoooter.Skill
 
 		public override void Sing ()
 		{
-			//Debug.Log(PlayerGameObject.playerStatus.IsDamaged());
-			//若该技能可被打断且当前玩家正遭受攻击，则当前技能从吟唱状态回退到准备状态，不再执行下一步动作
-			if (this.skillInfo.intCanBeStoppedOrNot == 1 && PlayerManager.playerStatus.GetIsDamaged ()) {
-				this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillPreparingState ());
-				return;
-			}
+			base.Sing ();
 
-			//SkillManager.GetInstance().PlayParticle(this.skillInfo.singingParticle);
+			SkillManager.GetInstance().PlayParticle(this.skillInfo.singingParticle);
 
-			this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillSingingState ());
+			Release ();
 		}
 
 		public override void Release ()
 		{
-			ReleaseSkill ();
-			this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillReleasingState ());
+			base.Release ();
+			//修改鼠标指针样式为技能图标
+			PlayerManager.SetMouseCursor ("AimSingle");
 		}
 
 		public override void HitTarget ()
 		{
 			PlayerManager.playerStatus.IncreaseHealth (this.skillInfo.intHP);
 
-			this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillHittingState ());
+			base.HitTarget ();
 
 			Complete ();
 		}
 
 		public override void Complete ()
 		{
-			this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillPreparingState ());
+			base.Complete ();
 		}
 
 		public override void Update ()
@@ -60,6 +56,9 @@ namespace SurvialShoooter.Skill
 					//Debug.Log (raycastHit.collider.name);
 
 					PlayerManager.ResetMouseCursor ();
+
+					TriggerSkill ();
+
 					//播放玩家释放技能时的动画
 					PlayerManager.playerStatus.GetAnimtor ().SetTrigger (this.skillInfo.strSingingAnimation);
 
@@ -67,36 +66,15 @@ namespace SurvialShoooter.Skill
 					//治疗术只能应用于玩家（或队友）自身，所以其粒子效果设置为singingParticle，在初始化时即挂载在PlayerGO节点上
 					SkillManager.GetInstance ().PlayParticle (this.skillInfo.singingParticle);
 
-					//技能释放完毕后可进行射击操作
-					PlayerManager.playerShooting.SetIsShooting(true);
-
 					HitTarget ();
-
-					SkillManager.skillEntity = null;
 				}
 
-			}else if(Input.GetMouseButtonDown (1)){
-
-				//取消释放技能的操作
+			}else if(Input.GetMouseButtonDown (1) || Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical")){
+				//恢复默认的鼠标指针样式
 				PlayerManager.ResetMouseCursor ();
-				//恢复之前的魔法值
-				PlayerManager.playerMana.IncreaseMana(this.skillInfo.intMP);
-				//技能状态机回退到技能准备状态
-				this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillPreparingState());
 
-				SkillManager.skillEntity = null;
-
+				Complete ();
 			}
 		}
-
-		void ReleaseSkill ()
-		{
-			//修改鼠标指针样式为技能图标
-			PlayerManager.SetMouseCursor ("AimSingle");
-			//禁止射击及释放任何其他技能
-			PlayerManager.playerShooting.SetIsShooting(false);
-			SkillManager.skillEntity = this;
-		}
-
 	}
 }

@@ -15,24 +15,34 @@ public class PlayerCastingSkill : MonoBehaviour
     //输入的键盘值
     public KeyCode keyCode;
 	//是否触发此技能
-	public bool isTrigger;
+	public bool isTriggering;
     //技能按钮名称
     public string strBtnName;
 	//计时器变量
-	private float timer = 0f;
+	float timer = 0f;
 	//倒计时Text控件对象
-	private Text countdownTxt;
+	Text countdownTxt;
 	//内层Image控件对象
-	private Image bgImg;
-	private PlayerMana playerMana;
+	Image innerImg;
+	//外层Image控件对象
+	Image outerImg;
+	PlayerMana playerMana;
+
+	public void SetIsTriggering(bool isTriggering)
+	{
+		this.isTriggering = isTriggering;
+	}
 
 	// Use this for initialization
 	void Start ()
 	{
-        strBtnName = this.transform.gameObject.name;
+        strBtnName = transform.gameObject.name;
 
-        countdownTxt = this.transform.Find ("Countdown").GetComponent<Text> ();
-		bgImg = GetComponent<Image> ();
+        countdownTxt = transform.Find ("Countdown").GetComponent<Text> ();
+
+		innerImg = GetComponent<Image> ();
+		outerImg = transform.parent.GetComponent<Image> ();
+			
 		playerMana = PlayerManager.playerGO.GetComponent<PlayerMana> ();
 	}
 	
@@ -63,6 +73,20 @@ public class PlayerCastingSkill : MonoBehaviour
         PlayerManager.ResetMouseCursor();
     }
 
+	//是否高亮标记当前技能的背景图片：选中此技能时标记，技能触发时取消标记
+	public void IsMarkingOuterImg(bool isReplacing)
+	{
+		string imgPath;
+
+		if (isReplacing) {
+			imgPath = "Tazo_2D/Icon/" + this.strBtnName + "_choosing";
+		} else {
+			imgPath = "Tazo_2D/Icon/" + this.strBtnName;
+		}
+
+		outerImg.sprite = Resources.Load (imgPath, typeof(Sprite)) as Sprite;
+	}
+
 	public void CastingSkill ()
 	{
 		//警告魔法值不足
@@ -72,30 +96,28 @@ public class PlayerCastingSkill : MonoBehaviour
 		}
 
 		if (timer == 0f) {
-			isTrigger = true;
-			DecreaseMP ();
-
-
-            //在此发消息给技能系统
+			//高亮标记当前技能的外层背景图片
+			IsMarkingOuterImg (true);
+			//在此发消息给技能系统
             CBaseEvent cBaseEvent = new CBaseEvent(CEventType.RELEASE_SKILL,this);
-            CEventDispacher.GetInstance().DispatchEvent(cBaseEvent);
+			CEventDispacher.GetInstance().DispatchEvent(cBaseEvent);
         }
 	}
 
 	//设置技能图片的倒计时效果
 	public void SetImgFillAmount ()
 	{
-		if (isTrigger) {
+		if (this.isTriggering) {
 			timer += Time.deltaTime;
 			float num = cdTime - timer;
-			bgImg.fillAmount = num / cdTime;
+			innerImg.fillAmount = num / cdTime;
 			countdownTxt.text = ((int)num).ToString ();
 
 			if (timer >= cdTime - 1) {
 				timer = 0f;
-				bgImg.fillAmount = 0f;
+				innerImg.fillAmount = 0f;
 				countdownTxt.text = "";
-				isTrigger = false;
+				SetIsTriggering (false);
 			}
 		}
 	}
@@ -114,13 +136,15 @@ public class PlayerCastingSkill : MonoBehaviour
 		{
 			BanningSkill (true);
 		}
-		//若所有技能中有部分技能处于未完成状态，则不能释放该技能
-		else if(!SkillManager.GetInstance().IsAllSkillStateMachinesStopped())
-		{
-			BanningSkill (true);
-		}
 		else{
-			if (!isTrigger) {
+			//若所有技能中有部分技能处于未完成状态，则不能释放该技能
+			if (!SkillManager.GetInstance ().IsAllSkillStateMachinesStopped ()) {
+				BanningSkill (true);
+			} else {
+				BanningSkill (false);
+			}
+
+			if (!isTriggering) {
 				BanningSkill (false);
 			}
 		}
@@ -131,9 +155,9 @@ public class PlayerCastingSkill : MonoBehaviour
 	public void BanningSkill(bool isBan)
 	{
 		if (isBan) {
-			bgImg.fillAmount = 1.0f;
+			innerImg.fillAmount = 1.0f;
 		} else {
-			bgImg.fillAmount = 0f;
+			innerImg.fillAmount = 0f;
 		}
 			
 	}
@@ -141,7 +165,7 @@ public class PlayerCastingSkill : MonoBehaviour
 	//警告魔法值不足
 	public void InsufficientManaAlert ()
 	{
-		Debug.Log ("Insufficient Mana");
+		//Debug.Log ("Insufficient Mana");
 	}
 
 }

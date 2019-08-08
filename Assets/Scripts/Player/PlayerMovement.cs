@@ -11,6 +11,8 @@ public class PlayerMovement : MonoBehaviour
 	float camRayLength = 100.0f;
 	AnimatorStateInfo animatorStateInfo;
 
+	public bool isMoving = true;
+
 	void Awake(){
 		floorMask = LayerMask.GetMask ("Floor");
 		anim = GetComponent<Animator> ();
@@ -24,12 +26,15 @@ public class PlayerMovement : MonoBehaviour
 
 		float v = Input.GetAxisRaw ("Vertical");
 
-		Move (h,v);
-		Turning ();
-		Animating (h, v);
+		if(isMoving)
+		{
+			Move (h,v);
+			Turning ();
+			Animating (h, v);
 
-		//GameObject cameraObj = GameObject.FindWithTag("MainCamera");
-		//print(cameraObj.camera.ScreenPointToRay(Input.mousePosition).direction);
+			//GameObject cameraObj = GameObject.FindWithTag("MainCamera");
+			//print(cameraObj.camera.ScreenPointToRay(Input.mousePosition).direction);
+		}
 	}
 
 	public void Move(float h,float v){

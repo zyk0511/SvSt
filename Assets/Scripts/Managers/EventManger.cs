@@ -9,11 +9,6 @@ public class EventManger : MonoBehaviour {
 	void Start () {
         cEventDispacher = CEventDispacher.GetInstance();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 
     void OnDestroy()
     {

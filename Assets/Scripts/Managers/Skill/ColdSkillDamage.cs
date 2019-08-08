@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 //using System.Collections.Generic;
-//using SurvialShoooter.Manager;
+using SurvialShoooter.Manager;
 
 namespace SurvialShoooter.Skill
 {
@@ -26,8 +26,9 @@ namespace SurvialShoooter.Skill
 					enemyGO.GetComponent<EnemyHealth> ().TakeDamage (50);
 					enemyGO.GetComponent<EnemyMovement> ().FreezeEnemyForSeconds (2f);
 					hitTargetSum++;
+
+					SkillManager.GetInstance ().StopParticle (this.skillInfo.releasingParticle);
 				}
-					
 			}
 
 		}

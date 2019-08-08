@@ -10144,7 +10144,7 @@ ParticleSystem:
     enabled: 1
     x:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 0
       maxCurve:
@@ -10185,7 +10185,7 @@ ParticleSystem:
         m_RotationOrder: 4
     y:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 0
       maxCurve:
@@ -12662,5 +12662,5 @@ MonoBehaviour:
   startPosition: {x: 0, y: 0.1, z: 0}
   startRotation: {x: 0, y: 0, z: 0}
   shootsTarget: 1
-  shootSpeed: 12
+  shootSpeed: 18
   targetPosition: {x: 0, y: 0.1, z: 100}

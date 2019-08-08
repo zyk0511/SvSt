@@ -19,7 +19,7 @@ namespace SurvialShoooter.Manager
 		{
 			hudCanvasObj = GameObject.Find("HUDCanvas");
 
-			InvokeRepeating ("Spawn", 1f, spawnTime);
+			InvokeRepeating ("Spawn", 0f, spawnTime);
 		}
 
 

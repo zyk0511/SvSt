@@ -10,8 +10,20 @@ namespace SurvialShoooter.Skill
         ISkillState skillHittingState;
 
         ISkillEntity iSkillEntity;
-
+	
         ISkillState skillState;
+
+		Object sender;
+
+		public void SetSender(Object sender)
+		{
+			this.sender = sender;
+		}
+
+		public Object GetSender()
+		{
+			return this.sender;
+		}
 
         public SkillStateMachine(ISkillEntity iSkillEntity)
         {

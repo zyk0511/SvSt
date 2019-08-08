@@ -12,8 +12,6 @@ public class EnemyMovement : MonoBehaviour
     NavMeshAgent nav;
 	Animator anim;
 
-	IEnumerator coroutine;
-
 	void OnEnable ()
     {
         player = PlayerManager.playerGO.transform;
@@ -36,11 +34,16 @@ public class EnemyMovement : MonoBehaviour
         {
             nav.enabled = false;
         }
+
+		if(enemyHealth.CurrentHealth <= 0)
+		{
+			OpenSnowCoveringShader (false);
+		}
     }
 
 	public void FreezeEnemyForSeconds(float seconds)
 	{
-		coroutine = InterruptNavForSeconds (seconds);
+		IEnumerator coroutine = FreezeEnemyCoroutine (seconds);
 		StartCoroutine (coroutine);
 
 	}
@@ -58,7 +61,7 @@ public class EnemyMovement : MonoBehaviour
 		}
 	}
 
-	IEnumerator InterruptNavForSeconds(float seconds)
+	IEnumerator FreezeEnemyCoroutine(float seconds)
 	{
 		float timer = 0f;
 		//nav.enabled = false;
@@ -82,6 +85,6 @@ public class EnemyMovement : MonoBehaviour
 			yield return new WaitForEndOfFrame();
 		}
 
-		yield return null;
+		//yield return null;
 	}
 }

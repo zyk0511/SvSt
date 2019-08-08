@@ -33,9 +33,9 @@ public class PlayerHealth : MonoBehaviour
     PlayerShooting playerShooting;
 	PlayerMana playerMana;
     bool isDead;
-    bool isDamaged;
-	//表示是否处于中断状态。当遭受敌方某些法术攻击（如眩晕、缠绕等）会使得玩家处于该状态，被中断的玩家如正在释放主动技能，则会被打断操作
-	bool isSuspended;
+	bool isDamaged;
+	//当遭受敌方某些法术攻击（如眩晕、缠绕等）会使得玩家处于该状态，被中断的玩家如正在释放主动技能，则会被打断操作
+	//bool isSuspended;
 
     void Awake ()
     {
@@ -52,7 +52,6 @@ public class PlayerHealth : MonoBehaviour
 
         this.isDead = false;
         this.isDamaged = false;
-		this.isSuspended = false;
 
 		AutoIncrement ();
 
@@ -88,17 +87,6 @@ public class PlayerHealth : MonoBehaviour
     {
         this.isDamaged = isDamaged;
     }
-
-	public bool GetIsSuspended()
-	{
-		return this.isSuspended;
-
-	}
-
-	public void SetIsSuspended(bool isSuspended)
-	{
-		this.isSuspended = isSuspended;
-	}
 
     public void TakeDamage (int amount)
     {

@@ -10,30 +10,26 @@ namespace SurvialShoooter.Skill
 
 		public override void Sing()
         {
-            //若该技能可被打断且当前玩家正遭受攻击，则当前技能从吟唱状态回退到准备状态，不再执行下一步动作
-            if (this.skillInfo.intCanBeStoppedOrNot == 1 && PlayerManager.playerStatus.GetIsDamaged())
-            {
-                this.skillStateMachine.SetSkillState(this.skillStateMachine.GetSkillPreparingState());
-                return;
-            }
+			base.Sing ();
 
 			SkillManager.GetInstance().PlayParticle(this.skillInfo.singingParticle);
-            this.skillStateMachine.SetSkillState(this.skillStateMachine.GetSkillSingingState());
+            
+			Release ();
         }
 
 		public override void Release()
         {
-            this.skillStateMachine.SetSkillState(this.skillStateMachine.GetSkillReleasingState());
-        }
+			base.Release ();
+		}
 
 		public override void HitTarget()
         {
-            this.skillStateMachine.SetSkillState(this.skillStateMachine.GetSkillHittingState());
+			base.HitTarget ();
         }
 
 		public override void Complete()
         {
-            this.skillStateMachine.SetSkillState(this.skillStateMachine.GetSkillPreparingState());
+			base.Complete ();
         }
 
 		public override void Update()
