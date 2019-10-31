@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
 public class EnemyAttack : MonoBehaviour
 {

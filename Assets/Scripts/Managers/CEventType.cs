@@ -26,7 +26,8 @@ public enum CEventType
     //普攻
     GENERAL_ATTACK,
     //释放技能/Buff
-    RELEASE_SKILL
-
+    RELEASE_SKILL,
+	//使用物品
+	USE_ITEM
 }
 

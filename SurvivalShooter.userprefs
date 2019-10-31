@@ -1,30 +1,40 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Managers\Skill\ForwardThunderEntity.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Managers\GameOverManager.cs">
     <Files>
-      <File FileName="Assets\Scripts\Managers\Skill\FirstAidForSingleEntity.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Managers\Skill\ColdBarkEntity.cs" Line="53" Column="42" />
-      <File FileName="Assets\Shaders\SnowCovering.shader" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Managers\Skill\ForwardThunderEntity.cs" Line="76" Column="80" />
-      <File FileName="Assets\Scripts\Managers\SkillManager.cs" Line="379" Column="3" />
-      <File FileName="Assets\Scripts\Player\PlayerCastingSkill.cs" Line="36" Column="32" />
-      <File FileName="Assets\Scripts\Managers\Skill\ChainLightning\UVChainLightning.cs" Line="58" Column="18" />
-      <File FileName="Assets\Scripts\Managers\Skill\HolyLightEntity.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Managers\Skill\SkillInfo.cs" Line="52" Column="49" />
-      <File FileName="Assets\Scripts\Managers\Skill\ISkillEntity.cs" Line="79" Column="3" />
-      <File FileName="Assets\Scripts\Managers\Skill\FireFuriousEntity.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Managers\Skill\SkillStateMachine.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Player\PlayerCastingSkill.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Managers\EnemyManager.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Managers\Skill\ColdSkillDamage.cs" Line="27" Column="66" />
-      <File FileName="Assets\Scripts\Enemy\EnemyMovement.cs" Line="88" Column="5" />
+      <File FileName="Assets\Scripts\Managers\Item\ItemUsing.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\SkillManager.cs" Line="19" Column="38" />
+      <File FileName="Assets\Scripts\Managers\PlayerManager.cs" Line="73" Column="6" />
+      <File FileName="Assets\Scripts\Managers\Item\TreasureBoxHandler.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Item\ItemController.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Item\BoxController.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\ItemManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Skill\DivineShield.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Item\HealingEntity.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Item\ManaEntity.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Item\Periapt1Entity.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Item\HealingSalveEntity.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Skill\SkillInfo.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Skill\ISkillEntity.cs" Line="113" Column="1" />
+      <File FileName="Assets\Scripts\Managers\GameOverManager.cs" Line="30" Column="5" />
+      <File FileName="Assets\Scripts\Managers\Item\DaggerOfEscapeEntity.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Item\OrbOfLightningEntity.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Skill\FireFuriousEntity.cs" Line="32" Column="1" />
+      <File FileName="Assets\Scripts\Player\PlayerHealth.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Managers\Skill\FirstAidForSingleEntity.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="I:\vs_workspace\SurvivalShooter\Assets\_CompletedAssets\Scripts\Enemy\EnemyMovement.cs" line="27" column="1" />
-      <Breakpoint file="F:\U3D_workspace\SurvivalShooter\Assets\Scripts\Managers\SkillManager.cs" line="216" column="1" />
-      <Breakpoint file="F:\U3D_workspace\SurvivalShooter\Assets\Scripts\Managers\Skill\FirstAidForSingleEntity.cs" line="39" column="1" />
-      <Breakpoint file="I:\vs_workspace\SurvivalShooter\Assets\Scripts\Managers\Skill\ForwardThunderEntity.cs" line="72" column="1" />
+      <Breakpoint file="F:\U3D_workspace\SurvivalShooter\Assets\Scripts\Managers\Item\BoxController.cs" line="20" column="1" />
+      <Breakpoint file="F:\U3D_workspace\SurvivalShooter\Assets\Scripts\Managers\Item\TreasureBoxHandler.cs" line="36" column="1" />
+      <Breakpoint file="F:\U3D_workspace\SurvivalShooter\Assets\Scripts\Enemy\EnemyMovement.cs" line="129" column="1" />
+      <Breakpoint file="F:\U3D_workspace\SurvivalShooter\Assets\Scripts\Managers\Item\OrbOfLightningEntity.cs" line="29" column="1" />
+      <Breakpoint file="I:\vs_workspace\SurvivalShooter\Assets\Scripts\Managers\Item\Periapt1Entity.cs" line="74" column="1" />
+      <Breakpoint file="I:\vs_workspace\SurvivalShooter\Assets\Scripts\Managers\Item\ItemController.cs" line="52" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

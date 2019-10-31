@@ -1,99 +1,76 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
-namespace SurvialShoooter.Skill
+namespace SurvivalShooter.Skill
 {
 	public class ForwardThunderEntity : ISkillEntity
-    {
-		public ForwardThunderEntity(SkillInfo skillInfo):base(skillInfo){}
+	{
+		RaycastHit aimIconHitPoint;
 
-		public override void Sing()
-        {
-			base.Sing ();
+		public ForwardThunderEntity (SkillInfo skillInfo) : base (skillInfo)
+		{
+		}
 
-			SkillManager.GetInstance().PlayParticle(this.skillInfo.singingParticle);
-            
-			Release ();
-        }
+		public override void Sing ()
+		{
+			this.skillInfo.isIconMarking = true;
 
-		public override void Release()
-        {
-			base.Release ();
 			//修改鼠标指针样式为技能图标
 			PlayerManager.SetMouseCursor ("AimSingle");
-        }
+			SkillManager.skillEntity = this;
 
-		public override void HitTarget()
-        {
-			base.HitTarget ();
-			Complete ();
-        }
+		}
 
-		public override void Complete()
-        {
-			base.Complete ();
-        }
-
-		public override void Update()
+		public override void Release ()
 		{
-			Vector3 mousePosition = Input.mousePosition;
+			base.Release ();
+		}
+
+		public override void HitTarget ()
+		{
+			base.HitTarget ();
+		}
+
+		public override void Complete ()
+		{
+			base.Complete ();
+		}
+
+		public override void Update ()
+		{
+			if (IsSkillStopped ()) {
+				Complete();
+				return;
+			}
 
 			if (Input.GetMouseButtonDown (0)) {
-
 				//获取AOE图标投射在世界空间的射线
-				RaycastHit aimIconHitPoint = SkillManager.GetInstance ().GetAimIconRaycastHitInWorldSpace (16f, Input.mousePosition, "ZomBear|ZomBunny|Hellephant");
+				this.aimIconHitPoint = SkillManager.GetInstance ().GetAimIconRaycastHitInWorldSpace (16f, Input.mousePosition,
+					"ZomBear|ZomBunny|Hellephant");
 
-				//Debug.Log (aimIconHitPoint.y);
+				//投射对象必须是enemy类型
+				if (this.aimIconHitPoint.collider == null || (!"ZomBear".Equals (this.aimIconHitPoint.collider.tag) && 
+					!"ZomBunny".Equals (this.aimIconHitPoint.collider.tag) && !"Hellephant".Equals (this.aimIconHitPoint.collider.tag))) {
+					return;
+				}
 
-				if ("ZomBear".Equals (aimIconHitPoint.collider.tag) || "ZomBunny".Equals (aimIconHitPoint.collider.tag)
-				    || "Hellephant".Equals (aimIconHitPoint.collider.tag)) {
-
-					//Debug.Log (raycastHit.collider.name);
+				//若大于施法距离则给玩家添加自动导航组件
+				if (Vector3.Distance (PlayerManager.playerGO.transform.position,
+					this.aimIconHitPoint.collider.transform.position) > this.skillInfo.distance) {
 
 					PlayerManager.ResetMouseCursor ();
 
-					TriggerSkill ();
+					NavigateToTarget (PlayerManager.playerGO.transform, this.aimIconHitPoint.collider.transform.position, this.skillInfo.distance,
+						PlayerManager.playerGO.GetComponent<PlayerMovement> ().speed, this.StartSkillLogic);
 
-					float angle = Vector3.Angle (aimIconHitPoint.point, PlayerManager.playerGO.transform.position);
-
-					//Debug.Log (angle);
-
-					PlayerManager.playerGO.transform.rotation = Quaternion.Euler (0f, angle, 0f);
-
-					//播放玩家释放技能时的动画
-					PlayerManager.playerStatus.GetAnimtor ().SetTrigger (this.skillInfo.strSingingAnimation);
-
-					List<GameObject> enemiesAttacked = SkillManager.GetInstance ().GetEnemyListInRangeByAmount (aimIconHitPoint.point, 3, this.skillInfo.range);
-
-					//enemiesAttacked.Insert (0, aimIconHitPoint.collider.gameObject);
-
-					GameObject[] enemiesAttackedArray = enemiesAttacked.ToArray ();
-
-					for (int i = 0; i < enemiesAttackedArray.Length;i++) {
-						GameObject sourceOfAttackGO;
-						GameObject endOfAttackGO = (GameObject)enemiesAttackedArray.GetValue (i);
-						GameObject chainLightning;
-
-						if (i == 0) {
-							sourceOfAttackGO = PlayerManager.playerGO;				
-						} else {
-							sourceOfAttackGO = (GameObject)enemiesAttackedArray.GetValue (i - 1);					}
-
-						chainLightning = SkillManager.GetInstance ().InstantiateChainLightning (sourceOfAttackGO.transform,endOfAttackGO.transform);
-						chainLightning.GetComponent<UVChainLightning> ().ShowForSecondsBeforeDestroying (1f);
-
-						float damageValue = this.skillInfo.intHP * Mathf.Pow (0.85f, (float)i);						
-
-						endOfAttackGO.GetComponent<EnemyHealth> ().TakeDamage (Mathf.RoundToInt(damageValue));
-
-					}
-
-					HitTarget ();
+					return;
 				}
 
-			} else if (Input.GetMouseButtonDown (1)  || Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical")) {
+				StartSkillLogic ();
+
+			} else if (Input.GetMouseButtonDown (1) || Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical") || Input.GetButtonDown("Cancel")) {
 				//恢复默认的鼠标指针样式
 				PlayerManager.ResetMouseCursor ();
 
@@ -101,5 +78,54 @@ namespace SurvialShoooter.Skill
 			}
 		}
 
-    }
+		public void StartSkillLogic ()
+		{
+			PlayerManager.ResetMouseCursor ();
+
+			base.Sing ();
+
+			float angle = Vector3.Angle (this.aimIconHitPoint.point, PlayerManager.playerGO.transform.position);
+
+			//Debug.Log (angle);
+
+			PlayerManager.playerGO.transform.rotation = Quaternion.Euler (0f, angle, 0f);
+
+			//播放玩家释放技能时的动画
+			PlayerManager.playerStatus.GetAnimtor ().SetTrigger (this.skillInfo.strSingingAnimation);
+
+			List<GameObject> enemiesAttacked = SkillManager.GetInstance ().GetEnemyListInRangeByAmount (this.aimIconHitPoint.point, 3,
+				this.skillInfo.range,"ZomBear|ZomBunny|Hellephant");
+
+			//enemiesAttacked.Insert (0, aimIconHitPoint.collider.gameObject);
+
+			GameObject[] enemiesAttackedArray = enemiesAttacked.ToArray ();
+
+			for (int i = 0; i < enemiesAttackedArray.Length; i++) {
+				GameObject sourceOfAttackGO;
+				GameObject endOfAttackGO = (GameObject)enemiesAttackedArray.GetValue (i);
+				GameObject chainLightning;
+
+				if (i == 0) {
+					sourceOfAttackGO = PlayerManager.playerGO;				
+				} else {
+					sourceOfAttackGO = (GameObject)enemiesAttackedArray.GetValue (i - 1);
+				}
+
+				chainLightning = SkillManager.GetInstance ().InstantiateChainLightning (sourceOfAttackGO.transform, endOfAttackGO.transform);
+				chainLightning.GetComponent<UVChainLightning> ().ShowForSecondsBeforeDestroying (0.25f);
+
+				PlaySkillAudio ();
+
+				float damageValue = this.skillInfo.intHP * Mathf.Pow (0.85f, (float)i);						
+
+				endOfAttackGO.GetComponent<EnemyHealth> ().TakeDamage (Mathf.RoundToInt (damageValue));
+			}
+
+			Release ();
+
+			HitTarget ();
+
+			Complete ();
+		}
+	}
 }

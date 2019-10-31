@@ -30,11 +30,11 @@ F:\U3D_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp-firstpass.csprojResol
 F:\U3D_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp-firstpass.dll
 F:\U3D_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp-firstpass.pdb
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\Assembly-CSharp-firstpass.dll
-I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\nunit.framework.dll
+I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.dll
+I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\Assembly-CSharp-firstpass.pdb
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEditor.dll
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.Analytics.dll
-I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.dll
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.HoloLens.dll
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.Networking.dll
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.TestRunner.dll

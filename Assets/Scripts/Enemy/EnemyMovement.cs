@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.AI;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -11,17 +11,25 @@ public class EnemyMovement : MonoBehaviour
     EnemyHealth enemyHealth;
     NavMeshAgent nav;
 	Animator anim;
+	bool isSlowedDown;
 
 	void OnEnable ()
     {
         player = PlayerManager.playerGO.transform;
         playerHealth = player.GetComponent <PlayerHealth> ();
 		enemyHealth = GetComponent <EnemyHealth> ();
-        nav = GetComponent <UnityEngine.AI.NavMeshAgent> ();
+        nav = GetComponent <NavMeshAgent> ();
 		nav.speed = movingSpeed;
 
 		anim = GetComponent<Animator> ();
+
+		isSlowedDown = false;
     }
+
+	public bool GetIsSlowedDown()
+	{
+		return this.isSlowedDown;
+	}
 
     void Update ()
     {
@@ -45,7 +53,6 @@ public class EnemyMovement : MonoBehaviour
 	{
 		IEnumerator coroutine = FreezeEnemyCoroutine (seconds);
 		StartCoroutine (coroutine);
-
 	}
 
 	void OpenSnowCoveringShader(bool isOpen)
@@ -64,27 +71,77 @@ public class EnemyMovement : MonoBehaviour
 	IEnumerator FreezeEnemyCoroutine(float seconds)
 	{
 		float timer = 0f;
-		//nav.enabled = false;
 		nav.speed = 0f;
+
+		this.isSlowedDown = true;
+
 		OpenSnowCoveringShader (true);
 		anim.SetBool("PlayerDead",true);
 
 		while (true) 
 		{
-			timer += Time.deltaTime;
-
-			if(timer > seconds)
+			if(timer >= seconds)
 			{
 				//nav.enabled = true;
 				nav.speed = movingSpeed;
+
+				this.isSlowedDown = false;
+
 				OpenSnowCoveringShader (false);
 				anim.SetBool("PlayerDead",false);
 				yield break;
 			}
 
+			timer += Time.deltaTime;
+
 			yield return new WaitForEndOfFrame();
 		}
 
 		//yield return null;
+	}
+
+	public void SlowDownEnemyForSeconds(float seconds,float speed,ParticleSystem slowingDownParticle)
+	{
+		IEnumerator coroutine = SlowDownEnemyCoroutine (seconds,speed,slowingDownParticle);
+		StartCoroutine (coroutine);
+	}
+
+	IEnumerator SlowDownEnemyCoroutine(float seconds,float speed,ParticleSystem slowingDownParticle)
+	{
+		float timer = 0f;
+		//nav.enabled = false;
+		nav.speed -= speed;
+
+		if(slowingDownParticle != null)
+		{
+			slowingDownParticle.transform.parent = this.gameObject.transform;
+			slowingDownParticle.transform.localPosition = Vector3.up;
+			slowingDownParticle.Play ();
+		}
+
+		this.isSlowedDown = true;
+
+		while (true) 
+		{
+			if(timer >= seconds)
+			{
+				//nav.enabled = true;
+				nav.speed = movingSpeed;
+
+				if(slowingDownParticle != null)
+				{
+					slowingDownParticle.Stop ();
+					Destroy (slowingDownParticle);
+				}
+
+				this.isSlowedDown = false;
+
+				yield break;
+			}
+
+			timer += Time.deltaTime;
+
+			yield return new WaitForEndOfFrame();
+		}
 	}
 }

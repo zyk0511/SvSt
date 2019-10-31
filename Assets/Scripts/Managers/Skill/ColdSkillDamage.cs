@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 //using System.Collections.Generic;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
-namespace SurvialShoooter.Skill
+namespace SurvivalShooter.Skill
 {
 	public class ColdSkillDamage:MonoBehaviour
 	{
-		public SkillInfo skillInfo;
+		public ISkillEntity skillEntity;
 
 		int hitTargetSum = 0;
 
@@ -23,15 +23,21 @@ namespace SurvialShoooter.Skill
 				enemyGO = other.collider.gameObject;
 				if ("ZomBear".Equals (enemyGO.tag) || "ZomBunny".Equals (enemyGO.tag) || "Hellephant".Equals (enemyGO.tag)) 
 				{
-					enemyGO.GetComponent<EnemyHealth> ().TakeDamage (50);
+					skillEntity.PlaySkillAudio ();
+
+					enemyGO.GetComponent<EnemyHealth> ().TakeDamage (skillEntity.skillInfo.intHP);
+
 					enemyGO.GetComponent<EnemyMovement> ().FreezeEnemyForSeconds (2f);
+
 					hitTargetSum++;
 
-					SkillManager.GetInstance ().StopParticle (this.skillInfo.releasingParticle);
+					SkillManager.GetInstance ().StopParticle (skillEntity.skillInfo.releasingParticle);
+
+					skillEntity.HitTarget ();
+					skillEntity.Complete ();
 				}
 			}
 
 		}
 	}
 }
-

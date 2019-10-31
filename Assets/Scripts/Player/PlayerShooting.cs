@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
 public class PlayerShooting : MonoBehaviour
 {
@@ -23,6 +23,21 @@ public class PlayerShooting : MonoBehaviour
 	public void SetIsShooting (bool isShooting)
 	{
 		this.isShooting = isShooting;
+	}
+
+	public bool GetIsShooting()
+	{
+		return this.isShooting;
+	}
+
+	public RaycastHit GetShootHit()
+	{
+		return this.shootHit;
+	}
+
+	public LineRenderer GetGunLine()
+	{
+		return this.gunLine;
 	}
 
 	void Awake ()
@@ -85,7 +100,7 @@ public class PlayerShooting : MonoBehaviour
 			}
 
             gunLine.SetPosition (1, shootHit.point);
-        }
+		}
         else
         {
             gunLine.SetPosition (1, shootRay.origin + shootRay.direction * range);

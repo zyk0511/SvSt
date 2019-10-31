@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
-namespace SurvialShoooter.Skill
+public delegate void Action();
+
+namespace SurvivalShooter.Skill
 {
 	public class ISkillEntity
     {
@@ -31,15 +33,12 @@ namespace SurvialShoooter.Skill
 		public virtual void Sing (){
 			//Debug.Log(PlayerManager.playerStatus.GetAnimtor ().GetCurrentAnimatorStateInfo (PlayerManager.playerStatus.GetAnimtor ().GetLayerIndex("Base Layer")).IsName ("Base Layer.Idle"));
 			//玩家释放技能前先回到idle状态
-			PlayerManager.playerStatus.GetAnimtor ().SetBool ("Run", false);
+			//PlayerManager.playerStatus.GetAnimtor ().SetBool ("Run", false);
 
 			//Debug.Log(PlayerManager.playerStatus.GetIsDamaged());
-			//若该技能可被打断且当前玩家正遭受敌方的法术中断，则当前技能从吟唱状态回退到准备状态，不再执行下一步动作
-			if (this.skillInfo.intCanBeStoppedOrNot == 1 && PlayerManager.playerStatus.GetIsDamaged()) {
-				//PlayerManager.playerStatus.GetAnimtor().SetTrigger("Idle");
-				this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillPreparingState ());
-				return;
-			}
+
+			//禁止射击
+			PlayerManager.playerShooting.SetIsShooting (false);
 
 			this.skillStateMachine.SetSkillState(this.skillStateMachine.GetSkillSingingState());
 
@@ -47,10 +46,8 @@ namespace SurvialShoooter.Skill
 		}
 
 		public virtual void Release (){
-			//禁止射击
-			PlayerManager.playerShooting.SetIsShooting (false);
-			SkillManager.skillEntity = this;
-
+			
+			TriggerSkill ();
 			this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillReleasingState ());
 		}
 
@@ -71,14 +68,31 @@ namespace SurvialShoooter.Skill
 		}
 
 		public virtual void Update(){
+		}
+
+		public bool IsSkillStopped()
+		{
 			//PlayerCastingSkill playerCastingSkill = (PlayerCastingSkill)this.skillStateMachine.GetSender ();
 			//playerCastingSkill.SetImgFillAmount ();
+
+			//若该技能可被打断且当前玩家正遭受敌方的法术中断且当前技能为吟唱状态，则将回退到准备状态，不再执行下一步动作
+			if (this.skillInfo.intCanBeStoppedOrNot == 1 && this.skillStateMachine.GetSkillState().Equals(this.skillStateMachine.GetSkillSingingState())
+				&& PlayerManager.playerStatus.GetIsSuspended()) {
+				//PlayerManager.playerStatus.GetAnimtor().SetTrigger("Idle");
+				//这里只负责技能状态的切换，玩家对象的状态需由实际情况来决定
+				//this.skillStateMachine.SetSkillState (this.skillStateMachine.GetSkillPreparingState ());
+
+				return true;
+			}
+
+			return false;
 		}
 
 		//触发技能启动并扣除魔法值
 		public void TriggerSkill()
 		{
-			PlayerCastingSkill playerCastingSkill = (PlayerCastingSkill)this.skillStateMachine.GetSender ();
+			GameObject skillBtnGO = (GameObject)this.skillStateMachine.GetSender ();
+			PlayerCastingSkill playerCastingSkill = skillBtnGO.GetComponent<PlayerCastingSkill> ();
 			playerCastingSkill.SetIsTriggering(true);
 			playerCastingSkill.DecreaseMP ();
 		}
@@ -86,8 +100,28 @@ namespace SurvialShoooter.Skill
 		//取消标记技能图标
 		public void UnMarkSkillImg()
 		{
-			PlayerCastingSkill playerCastingSkill = (PlayerCastingSkill)this.skillStateMachine.GetSender ();
+			GameObject skillBtnGO = (GameObject)this.skillStateMachine.GetSender ();
+			PlayerCastingSkill playerCastingSkill = skillBtnGO.GetComponent<PlayerCastingSkill> ();
 			playerCastingSkill.IsMarkingOuterImg (false);
+
+			this.skillInfo.isIconMarking = false;
+		}
+
+		public void PlaySkillAudio()
+		{
+			GameObject skillBtnGO = (GameObject)this.skillStateMachine.GetSender ();
+			skillBtnGO.GetComponent<AudioSource> ().Play ();
+		}
+
+		//给玩家添加自动导航组件，并完成既定动作
+		public void NavigateToTarget(Transform startTrans,Vector3 targetPosition,float distance,float speed,Action action)
+		{
+			NavigatingToTarget navigatingToTarget = PlayerManager.playerGO.AddComponent<NavigatingToTarget> ();
+			navigatingToTarget.startTrans = startTrans;
+			navigatingToTarget.targetPosition = targetPosition;
+			navigatingToTarget.distance = distance;
+			navigatingToTarget.speed = speed;
+			navigatingToTarget.action = action;
 		}
      }
 }

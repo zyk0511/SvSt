@@ -1,0 +1,195 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using SurvivalShooter.Manager;
+
+namespace SurvivalShooter.Item
+{
+	public class TreasureBoxHandler : MonoBehaviour
+	{
+		public ItemInfo itemInfo;
+
+		GameObject itemInfoPanelGO;
+
+		void OnEnable ()
+		{
+			//if (itemInfo == null) {
+				//this.gameObject.SetActive(false);
+				//return;
+			//}
+
+			//itemInfoPanelGO = ObjectPooler.sharedInstance.GetPooledObjectByTag ("ItemInfoPanel");
+		}
+
+		public void OnMouseDown()
+		{
+			if (Input.GetMouseButtonDown (0)) {
+
+				Transform itemPanelGOtransform = PlayerManager.itemPanelGO.transform;
+
+				foreach (Transform boxTransform in itemPanelGOtransform) {
+
+					if (boxTransform.childCount == 0)
+						continue;
+
+					Transform itemOuterTrans = boxTransform.GetChild (0);
+
+					if ("Item".Equals(itemOuterTrans.tag)) {
+						ItemController itemController = itemOuterTrans.GetComponent<ItemController> ();
+						//若背包中存在同类物品，则只修改数量
+						if (this.itemInfo.strEngName.Equals (itemController.itemInfo.strEngName)) {
+
+							itemController.itemCount++;
+
+							Transform itemInnerTrans = itemOuterTrans.Find ("Item");
+							Transform countBGTrans = null;
+
+							if (itemInnerTrans.childCount == 1) {
+								countBGTrans = itemInnerTrans.GetChild (0);
+							}
+
+							if (countBGTrans == null || !countBGTrans.gameObject.activeInHierarchy) {
+								
+								GameObject countBGGO = ObjectPooler.sharedInstance.GetPooledObjectByTag("CountBG");
+
+								countBGTrans = countBGGO.transform;
+
+								countBGTrans.parent = itemInnerTrans;
+
+								//使用绝对布局时，localPosition为中心点到锚点的值
+								//countBGTrans.localPosition = -8 * Vector3.left + 8 * Vector3.up;
+								countBGTrans.localPosition = Vector3.zero;
+
+								RectTransform countBGRectTrans = countBGTrans.GetComponent<RectTransform> ();
+
+								//锚点位置
+								countBGRectTrans.anchoredPosition = Vector2.right;
+								//中心点位置
+								countBGRectTrans.pivot = Vector2.right;
+
+								countBGRectTrans.anchorMin = Vector2.right;
+								countBGRectTrans.anchorMax = Vector2.right;
+
+								//countBGTrans.localRotation = Quaternion.Euler (Vector3.zero);
+
+								countBGTrans.localScale = Vector3.one;
+
+								countBGGO.SetActive (true);
+							}
+
+
+							Transform countTextTrans = countBGTrans.Find ("CountText");
+							Text countText = countTextTrans.gameObject.GetComponent<Text> ();
+							countText.text = itemController.itemCount.ToString ();
+
+							this.gameObject.SetActive(false);
+
+							if (itemInfoPanelGO != null && itemInfoPanelGO.activeInHierarchy) {
+								itemInfoPanelGO.SetActive (false);
+								PlayerManager.ResetMouseCursor ();
+							}
+
+							return;
+						}
+					}
+				}
+
+				foreach (Transform boxTransform in itemPanelGOtransform) {
+					//若背包中不存在同类物品，则将此物品存放在空格中
+					if(boxTransform.childCount == 0)
+					{
+						//GameObject itemOuterGO = Instantiate (Resources.Load ("Prefabs/Item") as GameObject);
+						GameObject itemOuterGO = ObjectPooler.sharedInstance.GetPooledObjectByTag("Item");
+
+						itemOuterGO.transform.parent = boxTransform;
+
+						itemOuterGO.transform.localPosition = Vector3.zero;
+
+						itemOuterGO.transform.localScale = Vector3.one;
+
+						itemOuterGO.GetComponent<Image>().sprite = Resources.Load (this.itemInfo.strImgName, typeof(Sprite)) as Sprite;
+
+						itemOuterGO.SetActive (true);
+
+						ItemController itemController = itemOuterGO.GetComponent<ItemController> ();
+
+						itemController.enabled = true;
+
+						itemController.itemInfo = this.itemInfo;
+
+						itemController.itemCount++;
+
+						Transform itemInnerTrans = itemOuterGO.transform.Find ("Item");
+						if (itemInnerTrans != null) {
+							itemInnerTrans.gameObject.GetComponent<Image>().sprite = Resources.Load (this.itemInfo.strImgName, typeof(Sprite)) as Sprite;
+						}
+
+
+						this.gameObject.SetActive(false);
+
+						if (itemInfoPanelGO != null && itemInfoPanelGO.activeInHierarchy) {
+							itemInfoPanelGO.SetActive (false);
+							PlayerManager.ResetMouseCursor ();
+						}
+
+						return;
+					}
+				}
+			}
+		}
+
+		void OnMouseEnter()
+		{
+			PlayerManager.SetMouseCursor ("icons8-hand-32");
+
+			itemInfoPanelGO = ObjectPooler.sharedInstance.GetPooledObjectByTag ("ItemInfoPanel");
+
+			//RectTransform rectTrans = itemInfoPanelGO.transform.GetComponent<RectTransform>();
+			itemInfoPanelGO.transform.SetPositionAndRotation(new Vector3(Input.mousePosition.x + 150f,
+				Input.mousePosition.y,0f),Quaternion.Euler(new Vector3(0f,0f,0f))
+			);
+
+			itemInfoPanelGO.SetActive (true);
+
+			Transform ItemPic = itemInfoPanelGO.transform.Find ("ItemPic");
+			if (ItemPic != null) {
+				ItemPic.gameObject.GetComponent<Image> ().sprite = Resources.Load (this.itemInfo.strImgName, typeof(Sprite)) as Sprite;
+			}
+			Transform itemName = itemInfoPanelGO.transform.Find ("ItemName");
+			if (itemName != null) {
+				itemName.gameObject.GetComponent<Text> ().text = this.itemInfo.strChnName;
+			}
+			Transform itemDescription = itemInfoPanelGO.transform.Find ("ItemDescription");
+			if (itemDescription != null) {
+				itemDescription.gameObject.GetComponent<Text> ().text = this.itemInfo.description;
+			}
+
+			itemInfoPanelGO.transform.parent = PlayerManager.HUDCanvasGO.transform;
+		}
+
+		void OnMouseExit()
+		{
+			if (itemInfoPanelGO == null || !itemInfoPanelGO.activeInHierarchy)
+				return;
+
+			PlayerManager.ResetMouseCursor ();
+
+			//this.itemInfo = null;
+			Transform ItemPic = itemInfoPanelGO.transform.Find ("ItemPic");
+			if (ItemPic != null) {
+				ItemPic.gameObject.GetComponent<Image> ().sprite = null;
+			}
+			Transform itemName = itemInfoPanelGO.transform.Find ("ItemName");
+			if (itemName != null) {
+				itemName.gameObject.GetComponent<Text> ().text = "";
+			}
+			Transform itemDescription = itemInfoPanelGO.transform.Find ("ItemDescription");
+			if (itemDescription != null) {
+				itemDescription.gameObject.GetComponent<Text> ().text = "";
+			}
+			itemInfoPanelGO.SetActive (false);
+		}
+	}
+}

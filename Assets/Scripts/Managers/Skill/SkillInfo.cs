@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 //using System.Collections.Generic;
 
-namespace SurvialShoooter.Skill
+namespace SurvivalShooter.Skill
 {
     [System.Serializable]
     public class SkillInfo
@@ -42,6 +42,10 @@ namespace SurvialShoooter.Skill
 		public int distance;
 		//作用范围
 		public int range;
+		//持续时间
+		public float duration;
+		//技能描述
+		public string description;
 
         [System.NonSerialized]
         //技能吟唱时的粒子对象
@@ -53,6 +57,9 @@ namespace SurvialShoooter.Skill
         [System.NonSerialized]
         //打击目标的粒子对象
         public ParticleSystem targetParticle;
-
+		//技能是否完成
+		//public bool isFinishing = false;
+		[System.NonSerialized]
+		public bool isIconMarking = false;
     }
 }

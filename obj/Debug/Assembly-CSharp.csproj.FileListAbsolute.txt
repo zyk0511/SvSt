@@ -30,7 +30,6 @@ F:\U3D_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.VR.xml
 F:\U3D_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 F:\U3D_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp.dll
 F:\U3D_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp.pdb
-I:\vs_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\Assembly-CSharp.dll
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\Assembly-CSharp.pdb
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\nunit.framework.dll
@@ -60,5 +59,6 @@ I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\nunit.framework.xml
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.Analytics.xml
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.HoloLens.xml
 I:\vs_workspace\SurvivalShooter\Temp\bin\Debug\UnityEngine.VR.xml
+I:\vs_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 I:\vs_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp.dll
 I:\vs_workspace\SurvivalShooter\obj\Debug\Assembly-CSharp.pdb

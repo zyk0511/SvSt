@@ -4,20 +4,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.IO;
-using SurvialShoooter.Skill;
+using SurvivalShooter.Skill;
 
-namespace SurvialShoooter.Manager
+namespace SurvivalShooter.Manager
 {
     public class SkillManager : MonoBehaviour
     {
+		public static ISkillEntity skillEntity = null;
+
 		static SkillManager instance;
 
-		public static ISkillEntity skillEntity = null;
+		static List<ISkillEntity> skillEntityList = new List<ISkillEntity>();
 
         Dictionary<string, SkillStateMachine> playerSkillsInfo = new Dictionary<string, SkillStateMachine>();
 
         List<SkillInfo> skillInfoList = new List<SkillInfo>();
-        static List<ISkillEntity> skillEntityList = new List<ISkillEntity>();
 
 
         public static SkillManager GetInstance()
@@ -37,6 +38,11 @@ namespace SurvialShoooter.Manager
             CEventDispacher.GetInstance().AddEventListener(CEventType.RELEASE_SKILL, StartSkillStateMachine);
 
         }
+
+		void OnDestroy()
+		{
+			CEventDispacher.GetInstance ().RemoveAll ();
+		}
 
 		void Update()
 		{
@@ -67,7 +73,7 @@ namespace SurvialShoooter.Manager
             //skillInfo1.intMP = 120;
             //skillInfo1.cdTime = 30;
 
-            skillInfoList = FromJsonToObject();
+            FromJsonToObject();
 
             foreach (SkillInfo skillInfo in skillInfoList)
             {
@@ -79,13 +85,11 @@ namespace SurvialShoooter.Manager
 				//releasingParticle挂载到playerGO上的目的是为了方便管理
 				//AddParticleToGameObject(skillInfo.releasingParticle, PlayerManager.playerGO);
 
-
-
                 Assembly assembly = Assembly.GetExecutingAssembly(); // 获取当前程序集 
                 SkillInfo[] arrSkillInfo = new SkillInfo[1];
                 arrSkillInfo[0] = skillInfo;
-                ISkillEntity skillEntity = assembly.CreateInstance("SurvialShoooter.Skill." + skillInfo.strEntityClassName,
-                    true, System.Reflection.BindingFlags.Default, null, arrSkillInfo, null, null) as ISkillEntity;
+                ISkillEntity skillEntity = assembly.CreateInstance("SurvivalShooter.Skill." + skillInfo.strEntityClassName,
+					true, System.Reflection.BindingFlags.CreateInstance, null, arrSkillInfo, null, null) as ISkillEntity;
                 //Debug.Log(skillEntity1.ToString());
                 skillEntityList.Add(skillEntity);
 
@@ -94,6 +98,10 @@ namespace SurvialShoooter.Manager
                 skillEntity.SetSkillStateMachine(skillStateMachine);
 
                 playerSkillsInfo.Add(skillInfo.strBtnName, skillStateMachine);
+
+				GameObject skillInnerImgGO = PlayerManager.skillPanelGO.transform.Find (skillInfo.strBtnName + "/" + skillInfo.strBtnName).gameObject;
+				PlayerCastingSkill playerCastingSkill = skillInnerImgGO.AddComponent<PlayerCastingSkill> ();
+				playerCastingSkill.skillInfo = skillInfo;
             }
 
         }
@@ -123,7 +131,7 @@ namespace SurvialShoooter.Manager
 			foreach(ISkillEntity skillEntity in skillEntityList)
 			{
 				//Console.WriteLine (skillStateMachine.GetSkillState().ToString());
-				if(!skillEntity.GetSkillStateMachine().GetSkillState().Equals(skillEntity.GetSkillStateMachine().GetSkillPreparingState()))
+				if(skillEntity.skillInfo.isIconMarking || !skillEntity.GetSkillStateMachine().GetSkillState().Equals(skillEntity.GetSkillStateMachine().GetSkillPreparingState()))
 				{
 					return false;	
 				}
@@ -167,8 +175,6 @@ namespace SurvialShoooter.Manager
 
 				//particleGO.playOnAwake = false;
                 particleGO.Stop();
-                
-                //Debug.Log(particleGO);
             }
         }
 
@@ -195,7 +201,6 @@ namespace SurvialShoooter.Manager
         {
             if (particle != null)
             {
-                
                 particle.Stop();
 				//开启粒子的光源
 				SetParticleLightEnabled (particle, true);
@@ -216,12 +221,20 @@ namespace SurvialShoooter.Manager
 		}
 
         //将技能配置文件（PlayerSkillsInfo.json）中的JSON格式字符串转化为SkillInfo实例
-        public List<SkillInfo> FromJsonToObject()
+		public void FromJsonToObject()
         {
-            StreamReader streamReader = new StreamReader("Assets/Scripts/Managers/Skill/PlayerSkillsInfo.json");
-            string strJson = streamReader.ReadToEnd();
+            //StreamReader streamReader = new StreamReader("Assets/Scripts/Managers/Skill/PlayerSkillsInfo.json");
+            //string strJson = streamReader.ReadToEnd();
 
-            streamReader.Close();
+            //streamReader.Close();
+
+			//TextAsset该类是用来读取配置文件的
+			//TextAsset只支持UTF-8
+			TextAsset asset = Resources.Load("PlayerSkillsInfo") as TextAsset;
+			if (!asset)//读不到就退出此方法
+				return;
+
+			string strJson = asset.text;	
 
             if (strJson != null && !"".Equals(strJson))
             {
@@ -235,11 +248,9 @@ namespace SurvialShoooter.Manager
                     skillInfoList.Add(skillInfo);
                 }
             }
-
-            return skillInfoList;
         }
 
-		public Vector3 GetCentreOfSkillCircleInWorldSpace (float radius, Vector3 mousePosition)
+		public RaycastHit GetCentreOfSkillCircleInWorldSpace (float radius, Vector3 mousePosition)
 		{
 			Vector3 centreOfSkillCircle = new Vector3 (mousePosition.x + radius, mousePosition.y - radius, 0f);
 
@@ -249,7 +260,7 @@ namespace SurvialShoooter.Manager
 
 			//Debug.Log (centreOfAOEHit.point);
 
-			return skillRaycastHit.point;
+			return skillRaycastHit;
 		}
 
 		public RaycastHit GetAimIconRaycastHitInWorldSpace (float radius, Vector3 mousePosition,string tagName)
@@ -268,27 +279,32 @@ namespace SurvialShoooter.Manager
 
 			Physics.Raycast (Camera.main.ScreenPointToRay (centreOfSkillCircle), out aimIconRaycastHit);
 
-			if (tagName.Contains (aimIconRaycastHit.collider.tag))
+			if("".Equals(tagName))
+			{
+				return aimIconRaycastHit;
+			}
+
+			if (aimIconRaycastHit.collider != null && tagName.Contains (aimIconRaycastHit.collider.tag))
 				return aimIconRaycastHit;
 
 			Physics.Raycast (Camera.main.ScreenPointToRay (rightPointOfTangency), out aimIconRaycastHit);
 
-			if (tagName.Contains (aimIconRaycastHit.collider.tag))
+			if (aimIconRaycastHit.collider != null && tagName.Contains (aimIconRaycastHit.collider.tag))
 				return aimIconRaycastHit;
 
 			Physics.Raycast (Camera.main.ScreenPointToRay (bottomPointOfTangency), out aimIconRaycastHit);
 
-			if (tagName.Contains (aimIconRaycastHit.collider.tag))
+			if (aimIconRaycastHit.collider != null && tagName.Contains (aimIconRaycastHit.collider.tag))
 				return aimIconRaycastHit;
 
 			Physics.Raycast (Camera.main.ScreenPointToRay (leftPointOfTangency), out aimIconRaycastHit);
 
-			if (tagName.Contains (aimIconRaycastHit.collider.tag))
+			if (aimIconRaycastHit.collider != null && tagName.Contains (aimIconRaycastHit.collider.tag))
 				return aimIconRaycastHit;
 
 			Physics.Raycast (Camera.main.ScreenPointToRay (topPointOfTangency), out aimIconRaycastHit);
 
-			if (tagName.Contains (aimIconRaycastHit.collider.tag))
+			if (aimIconRaycastHit.collider != null && tagName.Contains (aimIconRaycastHit.collider.tag))
 				return aimIconRaycastHit;
 
 			//Debug.Log (aimIconRaycastHit.collider.tag);
@@ -298,13 +314,14 @@ namespace SurvialShoooter.Manager
 
 		public float GetRadiusSquareOfSkillCircleInWorldSpace (float radius, Vector3 mousePosition, Vector3 centreOfAOEcircle)
 		{
-			Vector3 rightPointOfTangency = new Vector3 (mousePosition.x + radius, mousePosition.y, 0f);
+			Vector3 leftPointOfTangency = new Vector3 (mousePosition.x, mousePosition.y - radius, 0f);
 
-			RaycastHit rightPointOfTangencyHit;
+			RaycastHit leftPointOfTangencyHit;
 
-			Physics.Raycast (Camera.main.ScreenPointToRay (rightPointOfTangency), out rightPointOfTangencyHit);
+			Physics.Raycast (Camera.main.ScreenPointToRay (leftPointOfTangency), out leftPointOfTangencyHit);
 
-			float radiusSquare = Mathf.Pow (rightPointOfTangencyHit.point.x - centreOfAOEcircle.x, 2) + Mathf.Pow (rightPointOfTangencyHit.point.z - centreOfAOEcircle.z, 2);
+			float radiusSquare = Mathf.Pow (leftPointOfTangencyHit.point.x - centreOfAOEcircle.x, 2) + 
+				Mathf.Pow (leftPointOfTangencyHit.point.z - centreOfAOEcircle.z, 2);
 
 			return radiusSquare;
 		}
@@ -317,9 +334,9 @@ namespace SurvialShoooter.Manager
 			return false;
 		}
 
-		public void DamageAllEnemiesInCircle (Vector3 centreOfAOECircle, float radiusSquare,int skillIntHP)
+		public void DamageAllEnemiesInCircle (Vector3 centreOfAOECircle, float radiusSquare,int skillIntHP,string tagName)
 		{
-			List<GameObject> enemyGOList = GameObject.Find ("EnemyManager").transform.GetComponent<ObjectPooler> ().GetPooledObjectsList ();
+			List<GameObject> enemyGOList = ObjectPooler.sharedInstance.GetPooledObjectsListByTag (tagName);
 
 			foreach (GameObject enemyGO in enemyGOList) {
 
@@ -330,9 +347,9 @@ namespace SurvialShoooter.Manager
 		}
 
 		//获取作用范围内指定数量的敌人，并按照与目标的直线距离升序排序
-		public List<GameObject> GetEnemyListInRangeByAmount(Vector3 startPosition, int amount, int range)
+		public List<GameObject> GetEnemyListInRangeByAmount(Vector3 startPosition, int amount, int range,string tagName)
 		{
-			List<GameObject> enemyGOList = GameObject.Find ("EnemyManager").transform.GetComponent<ObjectPooler> ().GetPooledObjectsList ();
+			List<GameObject> enemyGOList = ObjectPooler.sharedInstance.GetPooledObjectsListByTag (tagName);
 
 			List<KeyValuePair<int,float>> enemyDistanceKYList = new List<KeyValuePair<int,float>> ();
 
@@ -344,6 +361,8 @@ namespace SurvialShoooter.Manager
 			{
 				float distanceSquare = Mathf.Pow (enemyGO.transform.position.x - startPosition.x, 2) + Mathf.Pow (enemyGO.transform.position.z - startPosition.z, 2);
 
+				//Debug.Log (distanceSquare);
+
 				if(enemyGO.activeInHierarchy && distanceSquare <= Mathf.Pow(range,2))
 				{
 					int key = enemyGO.GetInstanceID ();
@@ -354,13 +373,18 @@ namespace SurvialShoooter.Manager
 				}
 			}
 
-			//按值升序排列
-			enemyDistanceKYList.Sort(delegate(KeyValuePair<int,float> s1,KeyValuePair<int,float> s2){
-				return s1.Value.CompareTo(s2.Value);
-			});
+			if(enemyDistanceKYList.Count > 1){
+				//按值升序排列
+				enemyDistanceKYList.Sort(delegate(KeyValuePair<int,float> s1,KeyValuePair<int,float> s2){
+					return s1.Value.CompareTo(s2.Value);
+				});
+			}
 
-			//删除排序后超出指定数量的敌人
-			enemyDistanceKYList.RemoveRange (amount, enemyDistanceKYList.Count - amount);
+			if(enemyDistanceKYList.Count > amount){
+				//删除排序后超出指定数量的敌人
+				enemyDistanceKYList.RemoveRange (amount, enemyDistanceKYList.Count - amount);
+			}
+
 
 			foreach(KeyValuePair<int,float> enemyDistanceKY in enemyDistanceKYList)
 			{
@@ -371,6 +395,7 @@ namespace SurvialShoooter.Manager
 					enemyGOInRangeByAmountList.Add (enemyInCircle);
 				}
 			}
+
 
 			return enemyGOInRangeByAmountList;
 		}

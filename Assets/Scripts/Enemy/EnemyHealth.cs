@@ -18,7 +18,9 @@ public class EnemyHealth : MonoBehaviour
 	SphereCollider sphereCollider;
 	UnityEngine.AI.NavMeshAgent navMeshAgent;
 	public bool isDead;
-    bool isSinking;
+	public bool isBeingDamaged;
+
+	bool isSinking;
 
 	Image hitPointImg;
 	//Color hpOriginalColor = new Color(22.0f/255,160.0f/255,93.0f/255,1.0f);
@@ -70,6 +72,8 @@ public class EnemyHealth : MonoBehaviour
         if(isDead)
             return;
 
+		//this.isBeingDamaged = true;
+
         enemyAudio.Play ();
 
         currentHealth -= amount;
@@ -83,6 +87,8 @@ public class EnemyHealth : MonoBehaviour
         {
             Death ();
         }
+
+		//this.isBeingDamaged = false;
     }
 
 	//AOE伤害调用

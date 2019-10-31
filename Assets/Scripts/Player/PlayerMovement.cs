@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using SurvivalShooter.Manager;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -44,7 +45,8 @@ public class PlayerMovement : MonoBehaviour
 	}
 
 	void Turning(){
-		Ray camRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+		//Ray camRay = Camera.main.ScreenPointToRay (Input.mousePosition);
+		Ray camRay = PlayerManager.mainCameraGO.GetComponent<Camera>().ScreenPointToRay (Input.mousePosition);
 		RaycastHit floorHit;
 
 		if(Physics.Raycast(camRay,out floorHit,camRayLength,floorMask)){

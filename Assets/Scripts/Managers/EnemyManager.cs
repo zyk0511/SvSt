@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SurvialShoooter.Manager
+namespace SurvivalShooter.Manager
 {
 
 	public class EnemyManager : MonoBehaviour
@@ -13,16 +13,15 @@ namespace SurvialShoooter.Manager
 		public float spawnTime = 3f;
 		public Transform[] spawnPoints;
 
-		GameObject hudCanvasObj;
+		GameObject enemyHPSliderCanvasGO;
 
 		void Start ()
 		{
-			hudCanvasObj = GameObject.Find("HUDCanvas");
+			enemyHPSliderCanvasGO = GameObject.FindGameObjectWithTag("EnemyHPSliderCanvas");
 
 			InvokeRepeating ("Spawn", 0f, spawnTime);
 		}
-
-
+			
 		void Spawn ()
 		{
 			if (playerHealth.CurrentHealth <= 0) {
@@ -66,7 +65,7 @@ namespace SurvialShoooter.Manager
 		{
 			GameObject enemyHPSliderObj = ObjectPooler.sharedInstance.GetPooledObjectByTag ("EnemyHPSlider");
 
-			enemyHPSliderObj.transform.SetParent (hudCanvasObj.transform);
+			enemyHPSliderObj.transform.SetParent (enemyHPSliderCanvasGO.transform);
 
 			EnemyHPSliderPos enemyHPSliderPos = enemyHPSliderObj.transform.GetComponent<EnemyHPSliderPos> ();
 			if(enemyHPSliderPos == null)

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace SurvialShoooter.Skill
+namespace SurvivalShooter.Skill
 {
     public class SkillStateMachine
     {

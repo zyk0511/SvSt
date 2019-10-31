@@ -270,6 +270,7 @@ MonoBehaviour:
   scoreValue: 50
   deathClip: {fileID: 8300000, guid: 8c615fd0429f34edf85539d70279360d, type: 3}
   isDead: 0
+  isBeingDamaged: 0
 --- !u!114 &11400004
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -281,7 +282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94f6618a0da65fa45b24d5105d5d8422, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movingSpeed: 1.5
+  movingSpeed: 2
 --- !u!135 &13500000
 SphereCollider:
   m_ObjectHideFlags: 1

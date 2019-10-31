@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace SurvialShoooter.Skill
+namespace SurvivalShooter.Skill
 {
     public class SkillHittingState : ISkillState
     {

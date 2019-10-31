@@ -8,6 +8,21 @@ TagManager:
   - Hellephant
   - ZomBunny
   - EnemyHPSlider
+  - HUDCanvas
+  - EnemyHPSliderCanvas
+  - ItemInfoPanel
+  - ItemPanel
+  - TreasureBox
+  - Item
+  - CountBG
+  - Floor
+  - MessagePanel
+  - SkillPanel
+  - LevelExtent
+  - HealthSlider
+  - CountText
+  - Box
+  - SkillButton
   layers:
   - Default
   - TransparentFX

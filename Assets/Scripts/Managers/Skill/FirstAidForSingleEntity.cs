@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
-namespace SurvialShoooter.Skill
+namespace SurvivalShooter.Skill
 {
 	public class FirstAidForSingleEntity : ISkillEntity
 	{
@@ -14,18 +14,25 @@ namespace SurvialShoooter.Skill
 
 		public override void Sing ()
 		{
-			base.Sing ();
+			this.skillInfo.isIconMarking = true;
 
-			SkillManager.GetInstance().PlayParticle(this.skillInfo.singingParticle);
-
-			Release ();
+			//修改鼠标指针样式为技能图标
+			PlayerManager.SetMouseCursor ("AimSingle");
+			SkillManager.skillEntity = this;
 		}
 
 		public override void Release ()
 		{
+			//播放玩家释放技能时的动画
+			PlayerManager.playerStatus.GetAnimtor ().SetTrigger (this.skillInfo.strSingingAnimation);
+
+			//播放玩家释放技能的粒子效果
+			//治疗术只能应用于玩家（或队友）自身，所以其粒子效果设置为singingParticle，在初始化时即挂载在PlayerGO节点上
+			SkillManager.GetInstance ().PlayParticle (this.skillInfo.singingParticle);
+
+			PlaySkillAudio ();
+
 			base.Release ();
-			//修改鼠标指针样式为技能图标
-			PlayerManager.SetMouseCursor ("AimSingle");
 		}
 
 		public override void HitTarget ()
@@ -34,7 +41,6 @@ namespace SurvialShoooter.Skill
 
 			base.HitTarget ();
 
-			Complete ();
 		}
 
 		public override void Complete ()
@@ -44,32 +50,29 @@ namespace SurvialShoooter.Skill
 
 		public override void Update ()
 		{
-			Vector3 mousePosition = Input.mousePosition;
+			if (IsSkillStopped ()) {
+				Complete();
+				return;
+			}
 
 			if (Input.GetMouseButtonDown (0)) {
-
-				//获取AOE图标投射在世界空间的射线
+				//获取技能图标投射在世界空间的射线
 				RaycastHit aimIconHitPoint = SkillManager.GetInstance ().GetAimIconRaycastHitInWorldSpace (16f, Input.mousePosition,"Player");
 
-				if ("Player".Equals(aimIconHitPoint.collider.tag)) {
-
+				if (aimIconHitPoint.collider != null && "Player".Equals(aimIconHitPoint.collider.tag)) {
 					//Debug.Log (raycastHit.collider.name);
-
 					PlayerManager.ResetMouseCursor ();
 
-					TriggerSkill ();
+					base.Sing ();
 
-					//播放玩家释放技能时的动画
-					PlayerManager.playerStatus.GetAnimtor ().SetTrigger (this.skillInfo.strSingingAnimation);
-
-					//播放玩家释放技能的粒子效果
-					//治疗术只能应用于玩家（或队友）自身，所以其粒子效果设置为singingParticle，在初始化时即挂载在PlayerGO节点上
-					SkillManager.GetInstance ().PlayParticle (this.skillInfo.singingParticle);
+					Release ();
 
 					HitTarget ();
+
+					Complete ();
 				}
 
-			}else if(Input.GetMouseButtonDown (1) || Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical")){
+			}else if(Input.GetMouseButtonDown (1) || Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical") || Input.GetButtonDown("Cancel")){
 				//恢复默认的鼠标指针样式
 				PlayerManager.ResetMouseCursor ();
 

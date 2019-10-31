@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using SurvialShoooter.Manager;
+using SurvivalShooter.Manager;
 
-namespace SurvialShoooter.Skill
+namespace SurvivalShooter.Skill
 {
 	public class HolyLightEntity : ISkillEntity
     {
@@ -10,15 +10,20 @@ namespace SurvialShoooter.Skill
 
 		public override void Sing()
         {
-			base.Sing ();
+			this.skillInfo.isIconMarking = true;
 
-			SkillManager.GetInstance().PlayParticle(this.skillInfo.singingParticle);
-            
-			Release ();
+			//修改鼠标指针样式为技能图标
+			PlayerManager.SetMouseCursor ("AimSingle");
+			SkillManager.skillEntity = this;
         }
 
 		public override void Release()
         {
+			SkillManager.GetInstance ().PlayParticle (this.skillInfo.singingParticle);
+
+			DivineShield divineShield = PlayerManager.playerGO.AddComponent<DivineShield> ();
+			divineShield.skillEntity = this;
+
 			base.Release ();
 		}
 
@@ -34,7 +39,31 @@ namespace SurvialShoooter.Skill
 
 		public override void Update()
 		{
-			
+			if (IsSkillStopped ()) {
+				Complete();
+				return;
+			}
+
+			if (Input.GetMouseButtonDown (0)) {
+				//获取AOE图标投射在世界空间的射线
+				RaycastHit aimIconHitPoint = SkillManager.GetInstance ().GetAimIconRaycastHitInWorldSpace (16f, Input.mousePosition,"Player");
+
+				if (aimIconHitPoint.collider != null && "Player".Equals(aimIconHitPoint.collider.tag)) {
+
+					PlayerManager.ResetMouseCursor ();
+
+					base.Sing ();
+
+					Release ();
+
+					HitTarget ();
+				}
+			}else if(Input.GetMouseButtonDown (1) || Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical") || Input.GetButtonDown("Cancel")){
+				//恢复默认的鼠标指针样式
+				PlayerManager.ResetMouseCursor ();
+
+				Complete ();
+			}
 		}
     }
 }
